@@ -37,21 +37,23 @@ end)
 -- end
 
 function LockLights(veh)
-	SetVehicleLights(veh, 2)
-	SetVehicleIndicatorLights(GetVehicle(), 1, true)
-	SetVehicleIndicatorLights(GetVehicle(), 0, true)
-	Wait (200)
-	SetVehicleLights(veh, 0)
-	SetVehicleIndicatorLights(GetVehicle(), 1, false)
-	SetVehicleIndicatorLights(GetVehicle(), 0, false)
-	Wait (200)
-	SetVehicleLights(veh, 2)
-	SetVehicleIndicatorLights(GetVehicle(), 1, true)
-	SetVehicleIndicatorLights(GetVehicle(), 0, true)
-	Wait (400)
-	SetVehicleLights(veh, 0)
-	SetVehicleIndicatorLights(GetVehicle(), 1, false)
-	SetVehicleIndicatorLights(GetVehicle(), 0, false)
+	if not GetIsVehicleEngineRunning(veh) then
+		SetVehicleLights(veh, 2)
+		SetVehicleIndicatorLights(veh, 1, true)
+		SetVehicleIndicatorLights(veh, 0, true)
+		Wait (200)
+		SetVehicleLights(veh, 0)
+		SetVehicleIndicatorLights(veh, 1, false)
+		SetVehicleIndicatorLights(veh, 0, false)
+		Wait (200)
+		SetVehicleLights(veh, 2)
+		SetVehicleIndicatorLights(veh, 1, true)
+		SetVehicleIndicatorLights(veh, 0, true)
+		Wait (400)
+		SetVehicleLights(veh, 0)
+		SetVehicleIndicatorLights(veh, 1, false)
+		SetVehicleIndicatorLights(veh, 0, false)
+	end
 end
 
 
@@ -78,16 +80,16 @@ function ToggleVehicleLock()
 
 		if isOwnedVehicle then
 			local lockStatus = GetVehicleDoorLockStatus(vehicle)
-			
-			local dict = "anim@mp_player_intmenu@key_fob@"
-			PlaySoundFrontend(-1, "BUTTON", "MP_PROPERTIES_ELEVATOR_DOORS", 1)
-			RequestAnimDict(dict)
-			while not HasAnimDictLoaded(dict) do
-				Citizen.Wait(0)
+			if not IsPedInAnyVehicle(playerPed) then
+				local dict = "anim@mp_player_intmenu@key_fob@"
+				-- PlaySoundFrontend(-1, "BUTTON", "MP_PROPERTIES_ELEVATOR_DOORS", 1)
+				RequestAnimDict(dict)
+				while not HasAnimDictLoaded(dict) do
+					Citizen.Wait(0)
+				end
+				TaskPlayAnim(PlayerPedId(), dict, "fob_click_fp", 8.0, 8.0, -1, 48, 1, false, false, false)
+				LockLights(vehicle)
 			end
-			TaskPlayAnim(PlayerPedId(), dict, "fob_click_fp", 8.0, 8.0, -1, 48, 1, false, false, false)
-			LockLights(vehicle)
-
 			if lockStatus == 1 then -- unlocked
 				SetVehicleDoorsLocked(vehicle, 2)
 				PlayVehicleDoorCloseSound(vehicle, 1)
